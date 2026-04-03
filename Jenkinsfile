@@ -25,17 +25,17 @@ pipeline {
         sh 'npm install && npm run build'
     }
 }
-      stage('Package Artifact') {
-    steps {
-        sh 'zip -r zomato-build.zip build/'
-    }
-}
 stage('JENKINS TO NEXUS') {
     steps {
         withMaven(jdk: 'jdk21', traceability: true) {
             sh 'npm install'
             sh 'npm run build'
         }
+    }
+}
+        stage('Package Artifact') {
+    steps {
+        sh 'zip -r zomato-build.zip build/'
     }
 }
         stage('Upload to Nexus') {
