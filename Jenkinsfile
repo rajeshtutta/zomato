@@ -62,7 +62,7 @@ pipeline {
             sh '''
             curl -v -u $NEXUS_USER:$NEXUS_PASS \
             --upload-file zomato-build.zip \
-            http://44.203.55.56:8081/repository/raw-hosted/zomato-build.zip
+            http://localhost:8081/repository/raw-hosted/zomato-build.zip
             '''
         }
     }
