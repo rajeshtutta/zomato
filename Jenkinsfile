@@ -86,6 +86,24 @@ pipeline {
             }
         }
 
+         stage('Install Helm') {
+            steps {
+                sh 'curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash'
+            }
+        }
+        
+        stage('Add Repo') {
+            steps {
+                sh 'helm repo add prometheus-community https://prometheus-community.github.io/helm-charts helm repo update'
+            }
+        }
+
+        stage('Install Monitoring Stack') {
+            steps {
+                sh 'helm install monitoring prometheus-community/kube-prometheus-stack'
+            }
+        }
+        
         stage('Deploy to EKS') {
             steps {
                 sh '''
