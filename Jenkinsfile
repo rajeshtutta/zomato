@@ -133,9 +133,15 @@ stage('Add Helm Repo') {
     }
 }
 
-stage('Install Monitoring Stack') {
+stage('Deploy Monitoring (Helm)') {
     steps {
-        sh './helm install monitoring prometheus-community/kube-prometheus-stack'
+        sh '''
+        ./helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
+        ./helm repo update
+
+        ./helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+        --namespace monitoring --create-namespace
+        '''
     }
 }
 
