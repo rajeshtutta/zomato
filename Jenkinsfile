@@ -7,15 +7,15 @@ pipeline {
     }
 
     environment {
-        SONARQUBE_ENV = 'sq'
         DOCKER_IMAGE = "rajeshtutta123/zomato"
-        AWS_DEFAULT_REGION = 'us-east-1'
-        RECIPIENTS = 'rajeshtutta123@gmail.com'
+        AWS_REGION = "us-east-1"
+        CLUSTER_NAME = "mycluster"
+        RECIPIENTS = "rajeshtutta123@gmail.com"
     }
 
     stages {
 
-        stage('Clone Repository') {
+        stage('Clone Repo') {
             steps {
                 git branch: 'main', url: 'https://github.com/rajeshtutta/zomato.git'
             }
@@ -27,27 +27,21 @@ pipeline {
             }
         }
 
-        stage('Build Application') {
+        stage('Build App') {
             steps {
                 sh 'npm run build'
             }
         }
 
-        stage('Run Tests') {
+        stage('Test') {
             steps {
                 sh 'npm test || true'
             }
         }
 
-        stage('Package Artifact') {
-            steps {
-                sh 'zip -r zomato-build.zip build/'
-            }
-        }
-
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                withSonarQubeEnv('sq') {
                     sh '''
                     sonar-scanner \
                       -Dsonar.projectKey=zomato \
@@ -67,6 +61,12 @@ pipeline {
             }
         }
 
+        stage('Package Artifact') {
+            steps {
+                sh 'zip -r zomato-build.zip build/'
+            }
+        }
+
         stage('Upload to Nexus') {
             steps {
                 withCredentials([usernamePassword(
@@ -83,7 +83,7 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Docker Build') {
             steps {
                 sh '''
                 docker build -t $DOCKER_IMAGE:${BUILD_NUMBER} .
@@ -92,7 +92,7 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Docker Push') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-cred',
@@ -110,59 +110,54 @@ pipeline {
         }
 
         stage('Install Helm') {
-             steps {
-                 sh '''
-               curl -LO https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz
-               tar -zxvf helm-v3.14.0-linux-amd64.tar.gz
-               mv linux-amd64/helm helm
-               chmod +x helm
-               '''
+            steps {
+                sh '''
+                curl -LO https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz
+                tar -zxvf helm-v3.14.0-linux-amd64.tar.gz
+                mv linux-amd64/helm ./helm
+                chmod +x ./helm
+                '''
             }
         }
-        
-        stage('Verify Helm') {
-    steps {
-        sh './helm version'
-    }
-}
 
-stage('Add Helm Repo') {
-    steps {
-        sh './helm repo add prometheus-community https://prometheus-community.github.io/helm-charts'
-        sh './helm repo update'
-    }
-}
+        stage('Deploy Monitoring') {
+            steps {
+                sh '''
+                ./helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
+                ./helm repo update
 
-stage('Deploy Monitoring (Helm)') {
-    steps {
-        sh '''
-        ./helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
-        ./helm repo update
-
-        ./helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
-        --namespace monitoring --create-namespace
-        '''
-    }
-}
+                ./helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+                --namespace monitoring --create-namespace
+                '''
+            }
+        }
 
         stage('Deploy to EKS') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
-                    sh '''
-                    aws eks update-kubeconfig --region us-east-1 --name mycluster
-                    kubectl apply -f deployment.yml
-                    kubectl apply -f service.yml
-                    '''
-                }
+                sh '''
+                set -e
+
+                export AWS_DEFAULT_REGION=us-east-1
+
+                aws eks update-kubeconfig \
+                    --region $AWS_DEFAULT_REGION \
+                    --name mycluster
+
+                kubectl get nodes
+
+                kubectl apply -f deployment.yml
+                kubectl apply -f service.yml
+                '''
             }
         }
     }
 
     post {
+
         success {
             emailext(
                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "Build succeeded!\n\nCheck: ${env.BUILD_URL}",
+                body: "Build SUCCESS 🎉\n\nURL: ${env.BUILD_URL}",
                 to: "${RECIPIENTS}"
             )
         }
@@ -170,7 +165,7 @@ stage('Deploy Monitoring (Helm)') {
         failure {
             emailext(
                 subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "Build failed!\n\nCheck: ${env.BUILD_URL}",
+                body: "Build FAILED ❌\n\nURL: ${env.BUILD_URL}",
                 to: "${RECIPIENTS}"
             )
         }
