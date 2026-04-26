@@ -141,10 +141,12 @@ pipeline {
             }
         }
 
-        stage('Setup clusterIP to LoadBalanacer') {
+       stage('Expose Grafana') {
     steps {
         sh '''
-        kubectl patch svc monitoring-grafana -p '{"spec": {"type": "LoadBalancer"}}'
+        kubectl patch svc monitoring-kube-prometheus-stack-grafana \
+        -n monitoring \
+        -p '{"spec": {"type": "LoadBalancer"}}'
         '''
     }
 }
