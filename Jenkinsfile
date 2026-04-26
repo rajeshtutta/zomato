@@ -177,7 +177,7 @@ pipeline {
                 script {
                     def url = sh(
                         script: '''
-                        kubectl get svc zomato-service \
+                        kubectl get svc zomatosvc \
                         -o jsonpath="{.status.loadBalancer.ingress[0].hostname}{.status.loadBalancer.ingress[0].ip}"
                         ''',
                         returnStdout: true
