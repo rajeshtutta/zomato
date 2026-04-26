@@ -121,57 +121,71 @@ pipeline {
         }
 
         stage('Setup Kubeconfig') {
-    steps {
-        sh '''
-        aws eks update-kubeconfig --region us-east-1 --name mycluster
-        kubectl get nodes
-        '''
-    }
-}
+            steps {
+                sh '''
+                aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+                kubectl get nodes
+                '''
+            }
+        }
 
-        stage('Deploy Monitoring') {
+        stage('Deploy Monitoring (Prometheus + Grafana)') {
             steps {
                 sh '''
                 ./helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
                 ./helm repo update
 
                 ./helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
-                --namespace monitoring --create-namespace
+                --namespace monitoring --create-namespace \
+                --set grafana.service.type=LoadBalancer
                 '''
             }
         }
 
-stage('Expose Grafana') {
-    steps {
-        sh '''
-        echo "Waiting for Grafana service..."
-        sleep 30
-
-        kubectl get svc -n monitoring
-
-        kubectl patch svc monitoring-grafana \
-        -n monitoring \
-        -p '{"spec": {"type": "LoadBalancer"}}'
-        '''
-    }
-}
-
-        stage('Deploy to EKS') {
+        stage('Get Grafana Password') {
             steps {
                 sh '''
-                set -e
+                echo "Grafana Admin Password:"
+                kubectl get secret monitoring-grafana \
+                -n monitoring \
+                -o jsonpath="{.data.admin-password}" | base64 --decode
+                echo ""
+                '''
+            }
+        }
 
-                export AWS_DEFAULT_REGION=us-east-1
-
-                aws eks update-kubeconfig \
-                    --region $AWS_DEFAULT_REGION \
-                    --name mycluster
-
-                kubectl get nodes
-
+        stage('Deploy Application to EKS') {
+            steps {
+                sh '''
                 kubectl apply -f deployment.yml
                 kubectl apply -f service.yml
                 '''
+            }
+        }
+
+        stage('Wait for LoadBalancer') {
+            steps {
+                sh '''
+                echo "Waiting for LoadBalancer to be ready..."
+                sleep 60
+                '''
+            }
+        }
+
+        stage('Get Application URL') {
+            steps {
+                script {
+                    def url = sh(
+                        script: '''
+                        kubectl get svc zomato-service \
+                        -o jsonpath="{.status.loadBalancer.ingress[0].hostname}{.status.loadBalancer.ingress[0].ip}"
+                        ''',
+                        returnStdout: true
+                    ).trim()
+
+                    env.APP_URL = url
+                    echo "Application URL: ${env.APP_URL}"
+                }
             }
         }
     }
@@ -181,7 +195,15 @@ stage('Expose Grafana') {
         success {
             emailext(
                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "Build SUCCESS 🎉\n\nURL: ${env.BUILD_URL}",
+                body: """
+Build SUCCESS 🎉
+
+Application URL:
+http://${env.APP_URL}
+
+Jenkins URL:
+${env.BUILD_URL}
+""",
                 to: "${RECIPIENTS}"
             )
         }
@@ -189,7 +211,12 @@ stage('Expose Grafana') {
         failure {
             emailext(
                 subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "Build FAILED ❌\n\nURL: ${env.BUILD_URL}",
+                body: """
+Build FAILED ❌
+
+Check logs:
+${env.BUILD_URL}
+""",
                 to: "${RECIPIENTS}"
             )
         }
