@@ -141,6 +141,14 @@ pipeline {
             }
         }
 
+        stage('Setup Kubeconfig') {
+    steps {
+        sh '''
+        kubectl patch svc monitoring-grafana -p '{"spec": {"type": "LoadBalancer"}}'
+        '''
+    }
+}
+
         stage('Deploy to EKS') {
             steps {
                 sh '''
