@@ -141,10 +141,15 @@ pipeline {
             }
         }
 
-       stage('Expose Grafana') {
+stage('Expose Grafana') {
     steps {
         sh '''
-        kubectl patch svc monitoring-kube-prometheus-stack-grafana \
+        echo "Waiting for Grafana service..."
+        sleep 30
+
+        kubectl get svc -n monitoring
+
+        kubectl patch svc monitoring-grafana \
         -n monitoring \
         -p '{"spec": {"type": "LoadBalancer"}}'
         '''
