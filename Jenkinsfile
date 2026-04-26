@@ -120,6 +120,15 @@ pipeline {
             }
         }
 
+        stage('Setup Kubeconfig') {
+    steps {
+        sh '''
+        aws eks update-kubeconfig --region us-east-1 --name mycluster
+        kubectl get nodes
+        '''
+    }
+}
+
         stage('Deploy Monitoring') {
             steps {
                 sh '''
