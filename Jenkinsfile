@@ -141,7 +141,7 @@ pipeline {
             }
         }
 
-        stage('Setup Kubeconfig') {
+        stage('Setup clusterIP to LoadBalanacer') {
     steps {
         sh '''
         kubectl patch svc monitoring-grafana -p '{"spec": {"type": "LoadBalancer"}}'
