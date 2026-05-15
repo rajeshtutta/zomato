@@ -1,17 +1,27 @@
-import { LOGIN_SUCCESS, LOGOUT } from "./authTypes";
+import {
+  LOGIN_SUCCESS,
+  LOGOUT,
+} from "./authTypes";
 
-const user = JSON.parse(localStorage.getItem("zomatoUser"));
+const user =
+  JSON.parse(
+    localStorage.getItem("zomatoUser")
+  );
 
 const initialState = {
   isAuth: !!user,
   user: user || null,
 };
 
-export const authReducer = (state = initialState, action) => {
+export const authReducer = (
+  state = initialState,
+  action
+) => {
 
   switch (action.type) {
 
     case LOGIN_SUCCESS:
+
       return {
         ...state,
         isAuth: true,
@@ -19,7 +29,10 @@ export const authReducer = (state = initialState, action) => {
       };
 
     case LOGOUT:
-      localStorage.removeItem("zomatoUser");
+
+      localStorage.removeItem(
+        "zomatoUser"
+      );
 
       return {
         ...state,
