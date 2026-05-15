@@ -1,118 +1,74 @@
 import React, { useState } from "react";
-
-import { useDispatch }
-from "react-redux";
-
-import { loginSuccess }
-from "../Redux/Auth/authActions";
-
-import {
-  useNavigate,
-  Link,
-} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../Redux/Auth/authActions";
+import "./Login.scss";
 
 const Login = () => {
-
-  const [email, setEmail] =
-    useState("");
-
-  const [password, setPassword] =
-    useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
-
     e.preventDefault();
 
-    const users =
-      JSON.parse(
-        localStorage.getItem(
-          "zomatoUsers"
-        )
-      ) || [];
-
-    const validUser = users.find(
-      (user) =>
-        user.email === email &&
-        user.password === password
-    );
-
-    if (validUser) {
-
-      const user = {
-        name: validUser.name,
-        email: validUser.email,
-        token: "zomato-user-token",
-      };
-
-      localStorage.setItem(
-        "zomatoUser",
-        JSON.stringify(user)
-      );
-
-      dispatch(loginSuccess(user));
-
+    if (email && password) {
+      dispatch(loginSuccess());
       navigate("/");
-    }
-    else {
-
-      alert("Invalid Credentials");
+    } else {
+      alert("Please enter email and password");
     }
   };
 
   return (
+    <div className="loginPage">
+      <div className="overlay"></div>
 
-    <div className="container mt-5">
-
-      <div className="col-md-4 mx-auto shadow p-4 rounded">
-
-        <h2 className="text-center mb-4">
-          Login
-        </h2>
+      <div className="loginBox">
+        <div className="loginTop">
+          <h1>Login</h1>
+          <span>X</span>
+        </div>
 
         <form onSubmit={handleLogin}>
-
           <input
             type="email"
             placeholder="Enter Email"
-            className="form-control mb-3"
             value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <input
             type="password"
             placeholder="Enter Password"
-            className="form-control mb-3"
             value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
+            onChange={(e) => setPassword(e.target.value)}
           />
 
-          <button className="btn btn-danger w-100">
+          <button type="submit">
             Login
           </button>
-
         </form>
 
-        <p className="text-center mt-3">
+        <div className="divider">
+          <span>or</span>
+        </div>
 
-          Don't have an account?
+        <button className="emailBtn">
+          Continue with Email
+        </button>
 
-          <Link to="/register">
-            {" "}Register
-          </Link>
+        <button className="googleBtn">
+          Sign in with Google
+        </button>
 
+        <p>
+          New to Zomato?
+          <Link to="/register"> Create account</Link>
         </p>
-
       </div>
-
     </div>
   );
 };
