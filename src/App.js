@@ -7,9 +7,20 @@ import Cities from "./components/Cities/Cities";
 import Collection from "./components/Collections/Collection";
 import Card from "./components/Card/Card";
 
-function App() {
+import Login from "./Pages/Login";
+import Register from "./Pages/Register";
+
+import ProtectedRoute from "./Components/ProtectedRoute";
+
+import {
+  Routes,
+  Route,
+} from "react-router-dom";
+
+function Home() {
+
   return (
-    <div className="App">
+    <>
       <Header />
       <Card />
       <Collection />
@@ -17,6 +28,44 @@ function App() {
       <CTA />
       <AccContainer />
       <Footer />
+    </>
+  );
+}
+
+function App() {
+
+  return (
+
+    <div className="App">
+
+      <Routes>
+
+        <Route
+          path="/"
+          element={<Home />}
+        />
+
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+        <Route
+          path="/register"
+          element={<Register />}
+        />
+
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+
+      </Routes>
+
     </div>
   );
 }
