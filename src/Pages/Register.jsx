@@ -1,15 +1,20 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+
+import {
+  useNavigate,
+  Link,
+} from "react-router-dom";
 
 const Register = () => {
 
   const navigate = useNavigate();
 
-  const [userData, setUserData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [userData, setUserData] =
+    useState({
+      name: "",
+      email: "",
+      password: "",
+    });
 
   const handleChange = (e) => {
 
@@ -25,21 +30,25 @@ const Register = () => {
 
     e.preventDefault();
 
-    // Get existing users
     const users =
-      JSON.parse(localStorage.getItem("zomatoUsers")) || [];
+      JSON.parse(
+        localStorage.getItem(
+          "zomatoUsers"
+        )
+      ) || [];
 
-    // Check existing email
     const userExists = users.find(
-      (user) => user.email === userData.email
+      (user) =>
+        user.email === userData.email
     );
 
     if (userExists) {
+
       alert("User already exists");
+
       return;
     }
 
-    // Save new user
     users.push(userData);
 
     localStorage.setItem(
@@ -53,6 +62,7 @@ const Register = () => {
   };
 
   return (
+
     <div className="container mt-5">
 
       <div className="col-md-4 mx-auto shadow p-4 rounded">
@@ -70,7 +80,6 @@ const Register = () => {
             className="form-control mb-3"
             value={userData.name}
             onChange={handleChange}
-            required
           />
 
           <input
@@ -80,7 +89,6 @@ const Register = () => {
             className="form-control mb-3"
             value={userData.email}
             onChange={handleChange}
-            required
           />
 
           <input
@@ -90,7 +98,6 @@ const Register = () => {
             className="form-control mb-3"
             value={userData.password}
             onChange={handleChange}
-            required
           />
 
           <button className="btn btn-danger w-100">
