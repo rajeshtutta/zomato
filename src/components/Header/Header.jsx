@@ -4,6 +4,8 @@ import Logo from "../../assets/images/Zomato-Logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import blackLogo from "../../assets/images/blackLogo.webp";
+import { useDispatch } from "react-redux";
+import { logout } from "../../Redux/Auth/authActions";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
