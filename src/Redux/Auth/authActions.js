@@ -1,15 +1,11 @@
-import {
-  LOGIN_SUCCESS,
-  LOGOUT,
-} from "./authTypes";
+export const loginSuccess = () => {
+  return {
+    type: "LOGIN_SUCCESS",
+  };
+};
 
-export const loginSuccess = (
-  payload
-) => ({
-  type: LOGIN_SUCCESS,
-  payload,
-});
-
-export const logout = () => ({
-  type: LOGOUT,
-});
+export const logout = () => {
+  return {
+    type: "LOGOUT",
+  };
+};
