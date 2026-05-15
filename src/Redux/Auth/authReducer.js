@@ -9,35 +9,24 @@ const user =
   );
 
 const initialState = {
-  isAuth: !!user,
-  user: user || null,
+  isAuth: false,
 };
 
 export const authReducer = (
   state = initialState,
   action
 ) => {
-
   switch (action.type) {
-
-    case LOGIN_SUCCESS:
-
+    case "LOGIN_SUCCESS":
       return {
         ...state,
         isAuth: true,
-        user: action.payload,
       };
 
-    case LOGOUT:
-
-      localStorage.removeItem(
-        "zomatoUser"
-      );
-
+    case "LOGOUT":
       return {
         ...state,
         isAuth: false,
-        user: null,
       };
 
     default:
