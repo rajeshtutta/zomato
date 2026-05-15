@@ -10,7 +10,7 @@ import Card from "./components/Card/Card";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 
-import ProtectedRoute from "./Components/ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import {
   Routes,
