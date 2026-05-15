@@ -2,18 +2,25 @@ import React, { useState } from "react";
 import "./Header.scss";
 
 import Logo from "../../assets/images/Zomato-Logo.png";
-import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
 import blackLogo from "../../assets/images/blackLogo.webp";
 
-import { useDispatch } from "react-redux";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
+
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../Redux/Auth/authActions";
+
+import { Link } from "react-router-dom";
 
 const Header = () => {
 
   const [open, setOpen] = useState(false);
 
   const dispatch = useDispatch();
+
+  const isAuth = useSelector(
+    (store) => store.auth.isAuth
+  );
 
   const handleLogout = () => {
 
@@ -34,15 +41,44 @@ const Header = () => {
 
           <span>Add restaurant</span>
 
-          <span>Log in</span>
+          {
+            isAuth ? (
 
-          <span>Sign up</span>
+              <button
+                className="logoutBtn"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
 
-          <button
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
+            ) : (
+
+              <>
+
+                <Link
+                  to="/login"
+                  style={{
+                    textDecoration: "none",
+                    color: "white",
+                  }}
+                >
+                  Login
+                </Link>
+
+                <Link
+                  to="/register"
+                  style={{
+                    textDecoration: "none",
+                    color: "white",
+                  }}
+                >
+                  Sign Up
+                </Link>
+
+              </>
+
+            )
+          }
 
         </div>
 
@@ -74,9 +110,44 @@ const Header = () => {
 
               <span>Add restaurants</span>
 
-              <span>Log In</span>
+              {
+                isAuth ? (
 
-              <span>Sign Up</span>
+                  <button
+                    className="logoutBtn"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+
+                ) : (
+
+                  <>
+
+                    <Link
+                      to="/login"
+                      style={{
+                        textDecoration: "none",
+                        color: "black",
+                      }}
+                    >
+                      Login
+                    </Link>
+
+                    <Link
+                      to="/register"
+                      style={{
+                        textDecoration: "none",
+                        color: "black",
+                      }}
+                    >
+                      Sign Up
+                    </Link>
+
+                  </>
+
+                )
+              }
 
             </div>
 
