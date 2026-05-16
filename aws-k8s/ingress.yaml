@@ -14,7 +14,7 @@ metadata:
     # alb.ingress.kubernetes.io/ssl-redirect: '443'
 spec:
   rules:
-    - host: zomato.yourdomain.com
+    - host: tankandpets.shop
       http:
         paths:
           - path: /

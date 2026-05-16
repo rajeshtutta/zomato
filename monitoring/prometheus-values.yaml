@@ -8,7 +8,7 @@ grafana:
       kubernetes.io/ingress.class: alb
       alb.ingress.kubernetes.io/scheme: internet-facing
     hosts:
-      - grafana.yourdomain.com
+      - grafana.tankandpets.shop
 prometheus:
   prometheusSpec:
     serviceMonitorSelectorNilUsesHelmValues: false
