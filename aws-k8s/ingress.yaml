@@ -4,15 +4,13 @@ metadata:
   name: zomato-ingress
   namespace: zomato
   annotations:
-    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    
-    # Uncomment and update the below lines for SSL (ACM Certificate)
-    # alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:YOUR_REGION:YOUR_ACCOUNT_ID:certificate/YOUR_CERT_ID
-    # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
-    # alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:547446189705:certificate/8361ce9f-02fb-4396-8a6a-97fa03ded136
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
 spec:
+  ingressClassName: alb
   rules:
     - host: tankandpets.shop
       http:
