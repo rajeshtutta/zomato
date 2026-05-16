@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zomato-frontend
+  namespace: zomato
+  labels:
+    app: zomato-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: zomato-frontend
+  template:
+    metadata:
+      labels:
+        app: zomato-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: yourdockerhubuser/zomato-frontend:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zomato-frontend-svc
+  namespace: zomato
+spec:
+  selector:
+    app: zomato-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

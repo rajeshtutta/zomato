@@ -1,0 +1,55 @@
+name: Deploy to EKS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1
+  EKS_CLUSTER_NAME: zomato-eks-cluster
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push Frontend Image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKER_USERNAME }}/zomato-frontend:${{ github.sha }}
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Update KubeConfig
+      run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+    - name: Deploy to EKS
+      run: |
+        # Update image tags in k8s manifests to the new commit SHA
+        sed -i "s|yourdockerhubuser/zomato-frontend:latest|${{ secrets.DOCKER_USERNAME }}/zomato-frontend:${{ github.sha }}|g" aws-k8s/frontend-deployment.yaml
+        
+        # Apply the manifests
+        kubectl apply -f aws-k8s/namespace.yaml
+        kubectl apply -f aws-k8s/frontend-deployment.yaml
+        kubectl apply -f aws-k8s/ingress.yaml

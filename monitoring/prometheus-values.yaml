@@ -1,0 +1,15 @@
+grafana:
+  enabled: true
+  adminPassword: "admin" # Change this in production or use secrets
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/scheme: internet-facing
+    hosts:
+      - grafana.yourdomain.com
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
