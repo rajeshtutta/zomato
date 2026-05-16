@@ -18,7 +18,7 @@ module "eks" {
     zomato_nodes = {
       name = "zomato-node-group"
 
-      instance_types = ["t3.medium"]
+      instance_types = ["t3.micro"]
 
       # Auto Scaling Group parameters
       min_size     = 2
