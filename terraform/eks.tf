@@ -3,7 +3,7 @@ module "eks" {
   version = "~> 19.0"
 
   cluster_name    = var.cluster_name
-  cluster_version = "1.28" # Using a stable EKS version
+  cluster_version = "1.29"
 
   vpc_id                         = module.vpc.vpc_id
   subnet_ids                     = module.vpc.private_subnets
@@ -21,7 +21,7 @@ module "eks" {
       instance_types = ["t3.micro"]
 
       # Auto Scaling Group parameters
-      min_size     = 4
+      min_size     = 2
       max_size     = 5
       desired_size = 4
     }
