@@ -21,9 +21,9 @@ module "eks" {
       instance_types = ["t3.micro"]
 
       # Auto Scaling Group parameters
-      min_size     = 2
+      min_size     = 4
       max_size     = 5
-      desired_size = 2
+      desired_size = 4
     }
   }
 }
